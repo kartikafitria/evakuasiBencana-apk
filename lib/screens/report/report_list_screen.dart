@@ -3,6 +3,7 @@ import '../../services/evac_report_service.dart';
 import '../../models/evac_report.dart';
 import 'add_report_screen.dart';
 import 'edit_report_screen.dart';
+import 'detail_report_screen.dart';
 
 class ReportListScreen extends StatelessWidget {
   const ReportListScreen({super.key});
@@ -15,55 +16,98 @@ class ReportListScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Laporan Jalur Evakuasi"),
         backgroundColor: Colors.redAccent,
+        centerTitle: true,
       ),
 
+      // ================= FAB TAMBAH =================
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.redAccent,
         child: const Icon(Icons.add),
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const AddReportScreen()),
+            MaterialPageRoute(
+              builder: (_) => const AddReportScreen(),
+            ),
           );
         },
       ),
 
+      // ================= LIST LAPORAN =================
       body: StreamBuilder<List<EvacReport>>(
         stream: service.getReports(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return const Center(child: Text("Terjadi kesalahan"));
+            return const Center(
+              child: Text("Terjadi kesalahan"),
+            );
           }
 
           if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
           }
 
           final reports = snapshot.data!;
 
           if (reports.isEmpty) {
-            return const Center(child: Text("Belum ada laporan"));
+            return const Center(
+              child: Text("Belum ada laporan"),
+            );
           }
 
           return ListView.builder(
+            padding: const EdgeInsets.all(16),
             itemCount: reports.length,
-            itemBuilder: (context, i) {
-              final r = reports[i];
+            itemBuilder: (context, index) {
+              final r = reports[index];
 
               return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                margin: const EdgeInsets.only(bottom: 12),
                 child: ListTile(
-                  leading: const Icon(Icons.report, color: Colors.redAccent),
-                  title: Text(r.title),
-                  subtitle: Text(r.location),
+                  leading: const Icon(
+                    Icons.report,
+                    color: Colors.redAccent,
+                  ),
 
+                  // ================= JUDUL =================
+                  title: Text(
+                    r.title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  // ================= LOKASI =================
+                  subtitle: Text(
+                    r.location.isEmpty ? "Lokasi tidak tersedia" : r.location,
+                  ),
+
+                  // ================= KLIK DETAIL =================
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            DetailReportScreen(report: r),
+                      ),
+                    );
+                  },
+
+                  // ================= MENU =================
                   trailing: PopupMenuButton<String>(
                     onSelected: (value) async {
                       if (value == 'edit') {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => EditReportScreen(report: r),
+                            builder: (_) =>
+                                EditReportScreen(report: r),
                           ),
                         );
                       } else if (value == 'delete') {
@@ -72,17 +116,19 @@ class ReportListScreen extends StatelessWidget {
                           builder: (_) => AlertDialog(
                             title: const Text("Hapus Laporan"),
                             content: const Text(
-                                "Apakah kamu yakin ingin menghapus laporan ini?"),
+                                "Yakin ingin menghapus laporan ini?"),
                             actions: [
                               TextButton(
-                                onPressed: () => Navigator.pop(context, false),
+                                onPressed: () =>
+                                    Navigator.pop(context, false),
                                 child: const Text("Batal"),
                               ),
                               ElevatedButton(
-                                onPressed: () => Navigator.pop(context, true),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.redAccent,
                                 ),
+                                onPressed: () =>
+                                    Navigator.pop(context, true),
                                 child: const Text("Hapus"),
                               ),
                             ],
@@ -94,7 +140,7 @@ class ReportListScreen extends StatelessWidget {
                         }
                       }
                     },
-                    itemBuilder: (_) => const [
+                    itemBuilder: (context) => const [
                       PopupMenuItem(
                         value: 'edit',
                         child: Text("Edit"),

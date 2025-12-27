@@ -22,10 +22,10 @@ class EvacReport {
 
     return EvacReport(
       id: doc.id,
-      title: data['title'],
-      description: data['description'],
-      location: data['location'],
-      createdBy: data['createdBy'],
+      title: data['title'] ?? '',
+      description: data['description'] ?? '',
+      location: data['location'] ?? '',
+      createdBy: data['createdBy'] ?? '',
       createdAt: data['createdAt'],
     );
   }
