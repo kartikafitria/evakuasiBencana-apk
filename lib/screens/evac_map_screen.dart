@@ -14,7 +14,7 @@ class EvacMapScreen extends StatelessWidget {
       body: Column(
         children: [
 
-          // MAP PLACEHOLDER
+          // ================= MAP PLACEHOLDER =================
           Container(
             height: 220,
             width: double.infinity,
@@ -25,34 +25,33 @@ class EvacMapScreen extends StatelessWidget {
                 bottomRight: Radius.circular(16),
               ),
             ),
-            child: const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.map,
-                    size: 80,
-                    color: Colors.redAccent,
+            child: const Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.map,
+                  size: 80,
+                  color: Colors.redAccent,
+                ),
+                SizedBox(height: 8),
+                Text(
+                  "Peta Evakuasi Aktif",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
-                  SizedBox(height: 8),
-                  Text(
-                    "Peta Evakuasi",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    "(Google Maps akan ditampilkan di sini)",
-                    style: TextStyle(color: Colors.black54),
-                  ),
-                ],
-              ),
+                ),
+                Text(
+                  "Mode Simulasi (Flutter Web)",
+                  style: TextStyle(color: Colors.black54),
+                ),
+              ],
             ),
           ),
 
           const SizedBox(height: 16),
 
+          // ================= TITLE =================
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
             child: Align(
@@ -69,7 +68,7 @@ class EvacMapScreen extends StatelessWidget {
 
           const SizedBox(height: 8),
 
-          // LIST TITIK KUMPUL
+          // ================= LIST TITIK KUMPUL =================
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -80,18 +79,22 @@ class EvacMapScreen extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
+                  margin: const EdgeInsets.only(bottom: 10),
                   child: ListTile(
                     leading: const Icon(
                       Icons.location_on,
                       color: Colors.redAccent,
                     ),
-                    title: Text(item['name']!),
+                    title: Text(
+                      item['name']!,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     subtitle: Text(item['address']!),
                     trailing: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.redAccent,
                       ),
-                      child: const Text("Rute"),
+                      child: const Text("Detail"),
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -115,7 +118,10 @@ class EvacMapScreen extends StatelessWidget {
   }
 }
 
-// DETAIL SCREEN (SIMULASI RUTE)
+////////////////////////////////////////////////////////////
+/// DETAIL SCREEN – SIMULASI RUTE EVAKUASI (FULL)
+////////////////////////////////////////////////////////////
+
 class EvacDetailScreen extends StatelessWidget {
   final String name;
   final String address;
@@ -138,6 +144,8 @@ class EvacDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+
+            // ================= TITLE =================
             Text(
               name,
               style: const TextStyle(
@@ -145,10 +153,17 @@ class EvacDetailScreen extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 8),
-            Text(address),
+
+            const SizedBox(height: 6),
+
+            Text(
+              address,
+              style: const TextStyle(color: Colors.black54),
+            ),
+
             const SizedBox(height: 20),
 
+            // ================= MAP SIMULATION =================
             Container(
               height: 200,
               width: double.infinity,
@@ -158,14 +173,16 @@ class EvacDetailScreen extends StatelessWidget {
               ),
               child: const Center(
                 child: Text(
-                  "Simulasi Rute Evakuasi\n(Map Navigation)",
+                  "Simulasi Jalur Evakuasi\n(Google Maps)",
                   textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16),
                 ),
               ),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
 
+            // ================= NAVIGATION BUTTON =================
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.redAccent,
@@ -188,7 +205,10 @@ class EvacDetailScreen extends StatelessWidget {
   }
 }
 
-// DUMMY DATA
+////////////////////////////////////////////////////////////
+/// DUMMY DATA – TITIK EVAKUASI
+////////////////////////////////////////////////////////////
+
 final List<Map<String, String>> evacPoints = [
   {
     "name": "Lapangan Merdeka",
