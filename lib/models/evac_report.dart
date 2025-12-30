@@ -5,7 +5,7 @@ class EvacReport {
   final String title;
   final String description;
   final String location;
-  final String createdBy;
+  final String userId; // 🔥 konsisten
   final Timestamp createdAt;
 
   EvacReport({
@@ -13,7 +13,7 @@ class EvacReport {
     required this.title,
     required this.description,
     required this.location,
-    required this.createdBy,
+    required this.userId,
     required this.createdAt,
   });
 
@@ -25,7 +25,7 @@ class EvacReport {
       title: data['title'] ?? '',
       description: data['description'] ?? '',
       location: data['location'] ?? '',
-      createdBy: data['createdBy'] ?? '',
+      userId: data['userId'] ?? '',
       createdAt: data['createdAt'],
     );
   }

@@ -1,14 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-class EvacDetailScreen extends StatelessWidget {
-  final String name;
-  final String address;
+import 'qr/qr_scan_screen.dart';
+import 'evac_map_screen.dart';
+import '../services/route_service.dart';
+
+class EvacDetailScreen extends StatefulWidget {
+  final EvacPoint evacPoint;
+  final LatLng userLocation;
 
   const EvacDetailScreen({
     super.key,
-    required this.name,
-    required this.address,
+    required this.evacPoint,
+    required this.userLocation,
   });
+
+  @override
+  State<EvacDetailScreen> createState() => _EvacDetailScreenState();
+}
+
+class _EvacDetailScreenState extends State<EvacDetailScreen> {
+  final RouteService _routeService = RouteService();
+
+  List<LatLng> _routePoints = [];
+  bool _loadingRoute = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRoute();
+  }
+
+  Future<void> _loadRoute() async {
+    try {
+      final route = await _routeService.getRoute(
+        origin: widget.userLocation,
+        destination: widget.evacPoint.location,
+      );
+
+      setState(() {
+        _routePoints = route;
+        _loadingRoute = false;
+      });
+    } catch (e) {
+      setState(() => _loadingRoute = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,95 +53,86 @@ class EvacDetailScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Detail Evakuasi"),
         backgroundColor: Colors.redAccent,
-        centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-
-            // ================= JUDUL TITIK EVAKUASI =================
-            Text(
-              name,
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
+      body: Column(
+        children: [
+          SizedBox(
+            height: 300,
+            child: GoogleMap(
+              initialCameraPosition: CameraPosition(
+                target: widget.evacPoint.location,
+                zoom: 14,
               ),
-            ),
-
-            const SizedBox(height: 6),
-
-            // ================= ALAMAT =================
-            Row(
-              children: [
-                const Icon(Icons.location_on, size: 18, color: Colors.redAccent),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    address,
-                    style: const TextStyle(color: Colors.black54),
+              markers: {
+                Marker(
+                  markerId: const MarkerId("user"),
+                  position: widget.userLocation,
+                  icon: BitmapDescriptor.defaultMarkerWithHue(
+                    BitmapDescriptor.hueBlue,
                   ),
+                ),
+                Marker(
+                  markerId: const MarkerId("evac"),
+                  position: widget.evacPoint.location,
+                ),
+              },
+              polylines: {
+                if (_routePoints.isNotEmpty)
+                  Polyline(
+                    polylineId: const PolylineId("route"),
+                    color: Colors.redAccent,
+                    width: 5,
+                    points: _routePoints,
+                  ),
+              },
+            ),
+          ),
+
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.evacPoint.name,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  widget.evacPoint.address,
+                  style: const TextStyle(color: Colors.grey),
                 ),
               ],
             ),
+          ),
 
-            const SizedBox(height: 24),
+          const Spacer(),
 
-            // ================= SIMULASI MAP =================
-            Container(
-              height: 220,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.map,
-                    size: 70,
-                    color: Colors.redAccent,
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    "Simulasi Jalur Evakuasi",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    "Google Maps (Web Preview)",
-                    style: TextStyle(color: Colors.black54),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 28),
-
-            // ================= BUTTON NAVIGASI =================
-            ElevatedButton.icon(
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: ElevatedButton.icon(
+              icon: const Icon(Icons.qr_code),
+              label: const Text("Scan QR & Check-in"),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.redAccent,
-                minimumSize: const Size(double.infinity, 48),
+                minimumSize: const Size(double.infinity, 50),
               ),
-              icon: const Icon(Icons.navigation),
-              label: const Text("Mulai Navigasi"),
               onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      "Navigasi evakuasi dimulai (simulasi)",
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => QrScanScreen(
+                      selectedEvacLocation: widget.evacPoint.name,
                     ),
                   ),
                 );
               },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

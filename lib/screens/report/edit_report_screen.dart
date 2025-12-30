@@ -47,6 +47,7 @@ class _EditReportScreenState extends State<EditReportScreen> {
       appBar: AppBar(
         title: const Text("Edit Laporan"),
         backgroundColor: Colors.redAccent,
+        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -55,7 +56,7 @@ class _EditReportScreenState extends State<EditReportScreen> {
           child: Column(
             children: [
 
-              // JUDUL
+              // ================= JUDUL =================
               TextFormField(
                 controller: titleC,
                 decoration: const InputDecoration(
@@ -63,12 +64,14 @@ class _EditReportScreenState extends State<EditReportScreen> {
                   prefixIcon: Icon(Icons.title),
                 ),
                 validator: (v) =>
-                    v!.isEmpty ? "Judul tidak boleh kosong" : null,
+                    v == null || v.isEmpty
+                        ? "Judul tidak boleh kosong"
+                        : null,
               ),
 
               const SizedBox(height: 12),
 
-              // LOKASI
+              // ================= LOKASI =================
               TextFormField(
                 controller: locC,
                 decoration: const InputDecoration(
@@ -79,7 +82,7 @@ class _EditReportScreenState extends State<EditReportScreen> {
 
               const SizedBox(height: 12),
 
-              // DESKRIPSI
+              // ================= DESKRIPSI =================
               TextFormField(
                 controller: descC,
                 decoration: const InputDecoration(
@@ -91,7 +94,7 @@ class _EditReportScreenState extends State<EditReportScreen> {
 
               const SizedBox(height: 24),
 
-              // BUTTON SIMPAN
+              // ================= BUTTON SIMPAN =================
               SizedBox(
                 width: double.infinity,
                 height: 48,
@@ -102,35 +105,37 @@ class _EditReportScreenState extends State<EditReportScreen> {
                   onPressed: isLoading
                       ? null
                       : () async {
-                          if (_formKey.currentState!.validate()) {
-                            setState(() => isLoading = true);
+                          if (!_formKey.currentState!.validate()) return;
 
-                            try {
-                              await service.updateReport(
-                                id: widget.report.id,
-                                title: titleC.text,
-                                description: descC.text,
-                                location: locC.text,
-                              );
+                          setState(() => isLoading = true);
 
-                              if (!mounted) return;
+                          try {
+                            await service.updateReport(
+                              report: widget.report, // 🔥 KUNCI UTAMA
+                              title: titleC.text,
+                              description: descC.text,
+                              location: locC.text,
+                            );
 
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text("Laporan berhasil diperbarui"),
-                                ),
-                              );
+                            if (!mounted) return;
 
-                              Navigator.pop(context);
-                            } catch (e) {
-                              setState(() => isLoading = false);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text("Gagal update: $e"),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
-                            }
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Laporan berhasil diperbarui"),
+                              ),
+                            );
+
+                            Navigator.pop(context);
+                          } catch (e) {
+                            if (!mounted) return;
+                            setState(() => isLoading = false);
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text("Gagal update: $e"),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
                           }
                         },
                   child: isLoading
