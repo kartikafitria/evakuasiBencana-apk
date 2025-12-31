@@ -9,6 +9,7 @@ import 'providers/news_provider.dart';
 
 import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
+import 'services/notification_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,19 +31,30 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => NewsProvider()), // 🔥 INI WAJIB
+        ChangeNotifierProvider(create: (_) => NewsProvider()),
       ],
       child: Consumer<AuthProvider>(
         builder: (context, auth, _) {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
-            home: auth.isLoading
-                ? const Scaffold(
+
+            //  BUILDER AGAR ADA CONTEXT (INI KUNCI FCM)
+            home: Builder(
+              builder: (context) {
+                //  INIT FCM (HANYA SEKALI AMAN)
+                NotificationService.init(context);
+
+                if (auth.isLoading) {
+                  return const Scaffold(
                     body: Center(child: CircularProgressIndicator()),
-                  )
-                : auth.isLoggedIn
+                  );
+                }
+
+                return auth.isLoggedIn
                     ? const DashboardScreen()
-                    : const LoginScreen(),
+                    : const LoginScreen();
+              },
+            ),
           );
         },
       ),

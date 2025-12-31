@@ -9,30 +9,30 @@ class FCMService {
   static final FirebaseFirestore _db = FirebaseFirestore.instance;
   static final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  /// 🔔 INIT FCM
+  ///  INIT FCM
   static Future<void> init(BuildContext context) async {
-    // 1️⃣ Request permission (Android 13+ wajib)
+    // 1️ Request permission (Android 13+ wajib)
     await _fcm.requestPermission(
       alert: true,
       badge: true,
       sound: true,
     );
 
-    // 2️⃣ Ambil token
+    // 2️ Ambil token
     final token = await _fcm.getToken();
     debugPrint("🔥 FCM TOKEN: $token");
 
-    // 3️⃣ Simpan token ke Firestore
+    // 3️ Simpan token ke Firestore
     await _saveTokenToFirestore(token);
 
-    // 4️⃣ Foreground notification
+    // 4️ Foreground notification
     FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
 
-    // 5️⃣ Notifikasi ditekan (background → open)
+    // 5️ Notifikasi ditekan (background → open)
     FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationClick);
   }
 
-  /// 💾 SIMPAN TOKEN
+  ///  SIMPAN TOKEN
   static Future<void> _saveTokenToFirestore(String? token) async {
     final user = _auth.currentUser;
     if (user == null || token == null) return;
@@ -43,7 +43,7 @@ class FCMService {
     }, SetOptions(merge: true));
   }
 
-  /// 📩 FOREGROUND MESSAGE
+  ///  FOREGROUND MESSAGE
   static void _handleForegroundMessage(RemoteMessage message) {
     if (message.notification != null) {
       debugPrint("📩 Foreground Notification:");
@@ -52,7 +52,7 @@ class FCMService {
     }
   }
 
-  /// 👉 NOTIFICATION CLICK
+  ///  NOTIFICATION CLICK
   static void _handleNotificationClick(RemoteMessage message) {
     debugPrint("🔔 Notifikasi ditekan");
     debugPrint("Data: ${message.data}");
