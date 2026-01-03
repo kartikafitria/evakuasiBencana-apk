@@ -21,27 +21,44 @@ class AuthService {
   }
 
   Future<void> signInWithGoogle() async {
-    final googleUser = await GoogleSignIn().signIn();
-    if (googleUser == null) throw Exception("Login dibatalkan");
+    try {
+      final GoogleSignIn googleSignIn = GoogleSignIn(
+        scopes: ['email'],
+      );
 
-    final googleAuth = await googleUser.authentication;
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
+      await googleSignIn.signOut(); 
 
-    final result = await _auth.signInWithCredential(credential);
-    final user = result.user!;
+      final googleUser = await googleSignIn.signIn();
+      if (googleUser == null) {
+        throw Exception("Login Google dibatalkan");
+      }
 
-    final doc = await _db.collection('users').doc(user.uid).get();
-    if (!doc.exists) {
-      await _db.collection('users').doc(user.uid).set({
-        'uid': user.uid,
-        'name': user.displayName,
-        'email': user.email,
-        'provider': 'google',
-        'createdAt': Timestamp.now(),
-      });
+      final googleAuth = await googleUser.authentication;
+
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final result = await _auth.signInWithCredential(credential);
+      final user = result.user;
+
+      if (user == null) {
+        throw Exception("Gagal login Google");
+      }
+
+      final doc = await _db.collection('users').doc(user.uid).get();
+      if (!doc.exists) {
+        await _db.collection('users').doc(user.uid).set({
+          'uid': user.uid,
+          'name': user.displayName,
+          'email': user.email,
+          'provider': 'google',
+          'createdAt': Timestamp.now(),
+        });
+      }
+    } catch (e) {
+      throw Exception(e.toString());
     }
   }
 
@@ -57,4 +74,6 @@ class AuthService {
         return 'Login gagal';
     }
   }
+
+  register({required String name, required String email, required String password}) {}
 }

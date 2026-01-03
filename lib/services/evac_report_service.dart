@@ -22,7 +22,7 @@ class EvacReportService {
       'title': title.trim(),
       'description': description.trim(),
       'location': location.trim(),
-      'userId': user.uid, // 🔥 owner laporan
+      'userId': user.uid,
       'createdAt': Timestamp.now(),
     });
   }

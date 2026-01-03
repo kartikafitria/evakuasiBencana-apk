@@ -11,19 +11,14 @@ class AuthGate extends StatelessWidget {
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
 
-    // ⏳ Loading saat cek auth
     if (auth.isLoading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );
     }
 
-    // ✅ Sudah login
-    if (auth.isLoggedIn) {
-      return const DashboardScreen();
-    }
-
-    // ❌ Belum login
-    return const LoginScreen();
+    return auth.isLoggedIn
+        ? const DashboardScreen()
+        : const LoginScreen();
   }
 }

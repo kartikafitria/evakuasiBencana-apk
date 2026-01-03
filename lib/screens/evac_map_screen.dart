@@ -99,16 +99,10 @@ class _EvacMapScreenState extends State<EvacMapScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Evac Map"),
-        backgroundColor: Colors.redAccent,
-        centerTitle: true,
-      ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
-                // ================= MAP =================
                 SizedBox(
                   height: 180,
                   child: GoogleMap(
@@ -138,7 +132,6 @@ class _EvacMapScreenState extends State<EvacMapScreen> {
 
                 const SizedBox(height: 8),
 
-                // ================= TITLE =================
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16),
                   child: Align(
@@ -155,7 +148,6 @@ class _EvacMapScreenState extends State<EvacMapScreen> {
 
                 const SizedBox(height: 8),
 
-                // ================= LIST =================
                 Expanded(
                   child: ListView.builder(
                     padding: const EdgeInsets.all(16),
@@ -164,6 +156,7 @@ class _EvacMapScreenState extends State<EvacMapScreen> {
                       final item = evacPoints[index];
 
                       return Card(
+                        color: Colors.white,
                         elevation: 3,
                         margin: const EdgeInsets.only(bottom: 12),
                         shape: RoundedRectangleBorder(
@@ -181,8 +174,6 @@ class _EvacMapScreenState extends State<EvacMapScreen> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-
-                          // 🔴 PERUBAHAN ADA DI SINI (ALAMAT DIHAPUS)
                           subtitle: Text(
                             "${(item.distance! / 1000).toStringAsFixed(2)} km dari lokasi kamu",
                             style: const TextStyle(
@@ -190,7 +181,6 @@ class _EvacMapScreenState extends State<EvacMapScreen> {
                               color: Colors.black54,
                             ),
                           ),
-
                           trailing: const Icon(
                             Icons.arrow_forward_ios,
                             size: 16,
@@ -217,7 +207,6 @@ class _EvacMapScreenState extends State<EvacMapScreen> {
   }
 }
 
-// ================= MODEL =================
 class EvacPoint {
   final String name;
   final String address;

@@ -27,42 +27,19 @@ class _NewsScreenState extends State<NewsScreen> {
       body: CustomScrollView(
         slivers: [
 
-          SliverAppBar(
-            expandedHeight: 180,
-            pinned: false,     
-            floating: false,   
-            snap: false,      
-            backgroundColor: Colors.redAccent,
-            flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                padding: const EdgeInsets.all(20),
-                alignment: Alignment.bottomLeft,
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.redAccent, Colors.deepOrange],
-                  ),
-                ),
-                child: const Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Berita Bencana",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 6),
-                    Text(
-                      "Pantau informasi bencana terbaru.",
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
+          const SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(
+                16,
+                16,
+                16,
+                24,
+              ),
+              child: Text(
+                "Pantau informasi gempa terbaru",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
@@ -80,6 +57,7 @@ class _NewsScreenState extends State<NewsScreen> {
                 (context, index) {
                   final news = provider.newsList[index];
                   return Card(
+                    color: Colors.white, // 
                     margin: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 8,

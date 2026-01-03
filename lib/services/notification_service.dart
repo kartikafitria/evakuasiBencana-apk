@@ -4,9 +4,7 @@ import 'package:flutter/material.dart';
 class NotificationService {
   static final FirebaseMessaging _fcm = FirebaseMessaging.instance;
 
-  /// INIT NOTIFICATION
   static Future<void> init(BuildContext context) async {
-    // 🔔 Minta izin notifikasi
     NotificationSettings settings = await _fcm.requestPermission(
       alert: true,
       badge: true,
@@ -15,11 +13,9 @@ class NotificationService {
 
     debugPrint('Notification permission: ${settings.authorizationStatus}');
 
-    // 📌 Ambil token (penting untuk debug)
     final token = await _fcm.getToken();
     debugPrint("FCM Token: $token");
 
-    // 🔥 Notifikasi saat app foreground
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       if (message.notification != null) {
         _showSnackBar(

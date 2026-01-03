@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/rendering.dart';
 import '../../services/evac_report_service.dart';
 import '../../models/evac_report.dart';
 import 'add_report_screen.dart';
@@ -17,20 +18,28 @@ class _ReportListScreenState extends State<ReportListScreen> {
   final service = EvacReportService();
   final currentUser = FirebaseAuth.instance.currentUser;
 
-  bool showOnlyMine = false; // 🔥 STATE FILTER
+  bool showOnlyMine = false;
+  bool showFilterButton = true;
+
+  static const Color greenButton =
+      Color.fromARGB(255, 53, 210, 58);
+
+  static const Color activeBlue =
+      Color(0xFF4988C4);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Laporan Jalur Evakuasi"),
-        backgroundColor: Colors.redAccent,
-        centerTitle: true,
-      ),
-
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.redAccent,
-        child: const Icon(Icons.add),
+        backgroundColor: greenButton,
+        child: const Text(
+          "+",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         onPressed: () {
           Navigator.push(
             context,
@@ -40,7 +49,6 @@ class _ReportListScreenState extends State<ReportListScreen> {
           );
         },
       ),
-
       body: StreamBuilder<List<EvacReport>>(
         stream: service.getReports(),
         builder: (context, snapshot) {
@@ -58,7 +66,6 @@ class _ReportListScreenState extends State<ReportListScreen> {
             return const Center(child: Text("Belum ada laporan"));
           }
 
-          // 🔥 FILTER DATA
           final reports = showOnlyMine && currentUser != null
               ? allReports
                   .where((r) => r.userId == currentUser!.uid)
@@ -67,172 +74,163 @@ class _ReportListScreenState extends State<ReportListScreen> {
 
           return Column(
             children: [
-              // ================= FILTER CHIP =================
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: FilterChip(
-                    label: const Text("Hanya laporan saya"),
-                    selected: showOnlyMine,
-                    selectedColor: Colors.green.shade100,
-                    checkmarkColor: Colors.green,
-                    onSelected: (value) {
-                      setState(() {
-                        showOnlyMine = value;
-                      });
-                    },
+              const SizedBox(height: 20),
+
+              if (showFilterButton)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: FilterChip(
+                      label: const Text("Laporan Saya"),
+                      selected: showOnlyMine,
+                      selectedColor: activeBlue,
+                      backgroundColor: greenButton,
+                      checkmarkColor: Colors.white,
+                      labelStyle: const TextStyle(color: Colors.white),
+                      onSelected: (value) {
+                        setState(() {
+                          showOnlyMine = value;
+                        });
+                      },
+                    ),
                   ),
                 ),
-              ),
 
-              // ================= LIST LAPORAN =================
+              const SizedBox(height: 16),
+
               Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: reports.length,
-                  itemBuilder: (context, index) {
-                    final r = reports[index];
-                    final isOwner = currentUser != null &&
-                        r.userId == currentUser!.uid;
+                child: NotificationListener<UserScrollNotification>(
+                  onNotification: (notification) {
+                    if (notification.direction ==
+                        ScrollDirection.reverse) {
+                      if (showFilterButton) {
+                        setState(() {
+                          showFilterButton = false;
+                        });
+                      }
+                    } else if (notification.direction ==
+                        ScrollDirection.forward) {
+                      if (!showFilterButton) {
+                        setState(() {
+                          showFilterButton = true;
+                        });
+                      }
+                    }
+                    return false;
+                  },
+                  child: ListView.builder(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                    itemCount: reports.length,
+                    itemBuilder: (context, index) {
+                      final r = reports[index];
 
-                    return Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      margin: const EdgeInsets.only(bottom: 12),
-                      child: ListTile(
-                        // 🔴 IKON MERAH HANYA UNTUK LAPORAN ORANG LAIN
-                        leading: isOwner
-                            ? null
-                            : const Icon(
-                                Icons.report,
-                                color: Colors.redAccent,
-                              ),
+                      final canManage = showOnlyMine &&
+                          currentUser != null &&
+                          r.userId == currentUser!.uid;
 
-                        title: Text(
-                          r.title,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
+                      return Card(
+                        color: Colors.white,
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-
-                        // ===== LOKASI + CHIP =====
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(height: 4),
-                            Text(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        child: ListTile(
+                          leading: const Icon(
+                            Icons.report,
+                            color: Colors.redAccent,
+                          ),
+                          title: Text(
+                            r.title,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          subtitle: Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text(
                               r.location.isEmpty
                                   ? "Lokasi tidak tersedia"
                                   : r.location,
                             ),
-
-                            // 🟢 CHIP "LAPORAN ANDA"
-                            if (isOwner)
-                              Padding(
-                                padding:
-                                    const EdgeInsets.only(top: 6),
-                                child: Chip(
-                                  label: const Text(
-                                    "Laporan Anda",
-                                    style: TextStyle(
-                                      color: Colors.green,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  backgroundColor:
-                                      Colors.green.shade100,
-                                  materialTapTargetSize:
-                                      MaterialTapTargetSize
-                                          .shrinkWrap,
-                                  visualDensity:
-                                      VisualDensity.compact,
-                                ),
+                          ),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    DetailReportScreen(report: r),
                               ),
-                          ],
-                        ),
-
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  DetailReportScreen(report: r),
-                            ),
-                          );
-                        },
-
-                        // 🔐 EDIT & HAPUS HANYA PEMILIK
-                        trailing: isOwner
-                            ? PopupMenuButton<String>(
-                                onSelected: (value) async {
-                                  if (value == 'edit') {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) =>
-                                            EditReportScreen(
-                                                report: r),
-                                      ),
-                                    );
-                                  } else if (value == 'delete') {
-                                    final confirm =
-                                        await showDialog<bool>(
-                                      context: context,
-                                      builder: (_) => AlertDialog(
-                                        title: const Text(
-                                            "Hapus Laporan"),
-                                        content: const Text(
-                                            "Yakin ingin menghapus laporan ini?"),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () =>
-                                                Navigator.pop(
-                                                    context, false),
-                                            child:
-                                                const Text("Batal"),
-                                          ),
-                                          ElevatedButton(
-                                            style: ElevatedButton
-                                                .styleFrom(
-                                              backgroundColor:
-                                                  Colors.redAccent,
+                            );
+                          },
+                          trailing: canManage
+                              ? PopupMenuButton<String>(
+                                  onSelected: (value) async {
+                                    if (value == 'edit') {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) =>
+                                              EditReportScreen(report: r),
+                                        ),
+                                      );
+                                    } else if (value == 'delete') {
+                                      final confirm =
+                                          await showDialog<bool>(
+                                        context: context,
+                                        builder: (_) => AlertDialog(
+                                          title:
+                                              const Text("Hapus Laporan"),
+                                          content: const Text(
+                                              "Yakin ingin menghapus laporan ini?"),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(
+                                                      context, false),
+                                              child: const Text("Batal"),
                                             ),
-                                            onPressed: () =>
-                                                Navigator.pop(
-                                                    context, true),
-                                            child:
-                                                const Text("Hapus"),
-                                          ),
-                                        ],
-                                      ),
-                                    );
+                                            ElevatedButton(
+                                              style:
+                                                  ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    Colors.redAccent,
+                                              ),
+                                              onPressed: () =>
+                                                  Navigator.pop(
+                                                      context, true),
+                                              child: const Text(
+                                                "Hapus",
+                                                style: TextStyle(
+                                                    color: Colors.white),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
 
-                                    if (confirm == true) {
-                                      await service
-                                          .deleteReport(r.id as EvacReport);
+                                      if (confirm == true) {
+                                        await service.deleteReport(r);
+                                      }
                                     }
-                                  }
-                                },
-                                itemBuilder: (context) => const [
-                                  PopupMenuItem(
-                                    value: 'edit',
-                                    child: Text("Edit"),
-                                  ),
-                                  PopupMenuItem(
-                                    value: 'delete',
-                                    child: Text("Hapus"),
-                                  ),
-                                ],
-                              )
-                            : null,
-                      ),
-                    );
-                  },
+                                  },
+                                  itemBuilder: (context) => const [
+                                    PopupMenuItem(
+                                      value: 'edit',
+                                      child: Text("Edit"),
+                                    ),
+                                    PopupMenuItem(
+                                      value: 'delete',
+                                      child: Text("Hapus"),
+                                    ),
+                                  ],
+                                )
+                              : null,
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ),
             ],

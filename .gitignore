@@ -59,3 +59,10 @@ android/app/release
 # =========================
 android/app/google-services.json
 lib/firebase_options.dart
+
+
+
+# =========================
+# Nested folder (FIX)
+# =========================
+evac_map/

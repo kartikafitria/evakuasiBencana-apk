@@ -2,29 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/auth_provider.dart';
-import 'register_screen.dart';
-import 'biometric_screen.dart';
+import 'login_screen.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
   final emailC = TextEditingController();
   final passC = TextEditingController();
+  final confirmC = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   static const Color mainRed = Color(0xFFD73535);
-  static const Color loginGreen = Color.fromARGB(255, 53, 210, 58);
-  static const Color darkGrey = Color.fromARGB(255, 41, 41, 41);
+  static const Color mainGreen = Color.fromARGB(255, 53, 210, 58);
 
   @override
   void dispose() {
     emailC.dispose();
     passC.dispose();
+    confirmC.dispose();
     super.dispose();
   }
 
@@ -32,8 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(msg),
-        backgroundColor:
-            success ? const Color.fromARGB(255, 53, 210, 58) : mainRed,
+        backgroundColor: success ? Color.fromARGB(255, 53, 210, 58) : mainRed,
       ),
     );
   }
@@ -67,13 +66,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const Icon(
-                        Icons.warning_amber_rounded,
+                        Icons.person_add_alt_1,
                         size: 72,
                         color: mainRed,
                       ),
                       const SizedBox(height: 8),
                       const Text(
-                        "EVAC MAP",
+                        "DAFTAR AKUN",
                         style: TextStyle(
                           fontSize: 26,
                           fontWeight: FontWeight.bold,
@@ -81,9 +80,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 4),
                       const Text(
-                        "Masuk untuk melanjutkan",
+                        "Buat akun baru terlebih dahulu",
                         style: TextStyle(color: Colors.grey),
                       ),
+
                       const SizedBox(height: 24),
 
                       TextFormField(
@@ -130,6 +130,29 @@ class _LoginScreenState extends State<LoginScreen> {
                         },
                       ),
 
+                      const SizedBox(height: 16),
+
+                      TextFormField(
+                        controller: confirmC,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          labelText: "Konfirmasi Password",
+                          prefixIcon: const Icon(Icons.lock_outline),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        validator: (v) {
+                          if (v == null || v.isEmpty) {
+                            return "Konfirmasi password wajib diisi";
+                          }
+                          if (v != passC.text) {
+                            return "Password tidak sama";
+                          }
+                          return null;
+                        },
+                      ),
+
                       const SizedBox(height: 24),
 
                       SizedBox(
@@ -137,7 +160,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         height: 40,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: loginGreen,
+                            backgroundColor: mainGreen,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -149,7 +172,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     try {
                                       await context
                                           .read<AuthProvider>()
-                                          .loginEmail(
+                                          .registerEmail(
                                             email: emailC.text.trim(),
                                             password: passC.text.trim(),
                                           );
@@ -157,7 +180,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       if (!mounted) return;
 
                                       _showSnack(
-                                        "Login berhasil",
+                                        "Registrasi berhasil, silakan login",
                                         success: true,
                                       );
 
@@ -165,7 +188,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         context,
                                         MaterialPageRoute(
                                           builder: (_) =>
-                                              const BiometricScreen(),
+                                              const LoginScreen(),
                                         ),
                                       );
                                     } catch (e) {
@@ -178,62 +201,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                   color: Colors.black,
                                 )
                               : const Text(
-                                  "MASUK",
+                                  "DAFTAR",
                                   style: TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.bold,
-                                    color: darkGrey,
+                                    color: Color.fromARGB(255, 41, 41, 41),
                                   ),
                                 ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 16),
-                      const Divider(),
-                      const SizedBox(height: 16),
-
-                      SizedBox(
-                        width: 285,
-                        height: 42,
-                        child: OutlinedButton.icon(
-                          icon: Image.asset(
-                            'lib/assets/google.png',
-                            width: 22,
-                            height: 22,
-                          ),
-                          label: const Text(
-                            "Login dengan Google",
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          onPressed: auth.isLoading
-                              ? null
-                              : () async {
-                                  try {
-                                    await context
-                                        .read<AuthProvider>()
-                                        .signInWithGoogle();
-
-                                    if (!mounted) return;
-
-                                    _showSnack(
-                                      "Login Google berhasil",
-                                      success: true,
-                                    );
-
-                                    Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) =>
-                                            const BiometricScreen(),
-                                      ),
-                                    );
-                                  } catch (e) {
-                                    _showSnack(e.toString());
-                                  }
-                                },
                         ),
                       ),
 
@@ -246,19 +220,20 @@ class _LoginScreenState extends State<LoginScreen> {
                                 Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (_) => const RegisterScreen(),
+                                    builder: (_) => const LoginScreen(),
                                   ),
                                 );
                               },
                         child: RichText(
                           text: const TextSpan(
+                            text: "Sudah punya akun? ",
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontWeight: FontWeight.normal,
+                            ),
                             children: [
                               TextSpan(
-                                text: "Belum punya akun? ",
-                                style: TextStyle(color: Colors.grey),
-                              ),
-                              TextSpan(
-                                text: "Daftar",
+                                text: "Masuk",
                                 style: TextStyle(
                                   color: mainRed,
                                   fontWeight: FontWeight.bold,

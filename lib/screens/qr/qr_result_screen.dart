@@ -15,11 +15,6 @@ class QrResultScreen extends StatelessWidget {
         : "Lokasi evakuasi tidak diketahui";
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Check-in Berhasil"),
-        backgroundColor: Colors.redAccent,
-        centerTitle: true,
-      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -29,27 +24,32 @@ class QrResultScreen extends StatelessWidget {
               color: Colors.green,
               size: 90,
             ),
-            const SizedBox(height: 24),
+
+            const SizedBox(height: 16),
+
             const Text(
-              "Lokasi Evakuasi",
+              "Check-in Berhasil",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            const Text(
+              "Titik Kumpul Evakuasi",
               style: TextStyle(fontSize: 16),
             ),
+
             const SizedBox(height: 8),
+
             Text(
               lokasi,
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              "Berhasil check-in di $lokasi",
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.black54,
               ),
             ),
           ],

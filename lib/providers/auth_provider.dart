@@ -10,13 +10,6 @@ class AuthProvider extends ChangeNotifier {
   User? _user;
 
   AuthProvider() {
-    _init();
-  }
-
-  Future<void> _init() async {
-    // 🔥 SETIAP APP DIBUKA → LOGOUT
-    await _firebaseAuth.signOut();
-
     _firebaseAuth.authStateChanges().listen((user) {
       _user = user;
       _isLoading = false;
@@ -26,43 +19,58 @@ class AuthProvider extends ChangeNotifier {
 
   bool get isLoading => _isLoading;
   bool get isLoggedIn => _user != null;
+  User? get user => _user;
 
-  // 🔵 GOOGLE LOGIN
   Future<void> signInWithGoogle() async {
-    _isLoading = true;
-    notifyListeners();
-
+    _setLoading(true);
     try {
       await _authService.signInWithGoogle();
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _setLoading(false);
     }
   }
 
-  // 🔐 EMAIL LOGIN
   Future<void> loginEmail({
     required String email,
     required String password,
   }) async {
-    _isLoading = true;
-    notifyListeners();
-
+    _setLoading(true);
     try {
       await _authService.loginEmail(
         email: email,
         password: password,
       );
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _setLoading(false);
+    }
+  }
+
+  // ================= REGISTER =================
+  Future<void> register({
+    required String name,
+    required String email,
+    required String password,
+  }) async {
+    _setLoading(true);
+    try {
+      await _authService.register(
+        name: name,
+        email: email,
+        password: password,
+      );
+    } finally {
+      _setLoading(false);
     }
   }
 
   Future<void> logout() async {
     await _firebaseAuth.signOut();
+  }
+
+  void _setLoading(bool value) {
+    _isLoading = value;
     notifyListeners();
   }
 
-  register({required String name, required String email, required String password}) {}
+  registerEmail({required String email, required String password}) {}
 }

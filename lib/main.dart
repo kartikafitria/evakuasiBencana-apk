@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'firebase_options.dart';
 import 'providers/auth_provider.dart';
@@ -9,6 +10,7 @@ import 'providers/news_provider.dart';
 
 import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
+import 'screens/biometric_screen.dart';
 import 'services/notification_service.dart';
 
 Future<void> main() async {
@@ -26,6 +28,11 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  Future<bool> _checkBiometricVerified() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('biometricVerified') ?? false;
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -37,11 +44,8 @@ class MyApp extends StatelessWidget {
         builder: (context, auth, _) {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
-
-            //  BUILDER AGAR ADA CONTEXT (INI KUNCI FCM)
             home: Builder(
               builder: (context) {
-                //  INIT FCM (HANYA SEKALI AMAN)
                 NotificationService.init(context);
 
                 if (auth.isLoading) {
@@ -50,9 +54,24 @@ class MyApp extends StatelessWidget {
                   );
                 }
 
-                return auth.isLoggedIn
-                    ? const DashboardScreen()
-                    : const LoginScreen();
+                if (!auth.isLoggedIn) {
+                  return const LoginScreen();
+                }
+
+                return FutureBuilder<bool>(
+                  future: _checkBiometricVerified(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Scaffold(
+                        body: Center(child: CircularProgressIndicator()),
+                      );
+                    }
+
+                    return snapshot.data == true
+                        ? const DashboardScreen()
+                        : const BiometricScreen();
+                  },
+                );
               },
             ),
           );

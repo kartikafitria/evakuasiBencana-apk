@@ -5,7 +5,7 @@ class EvacReport {
   final String title;
   final String description;
   final String location;
-  final String userId; // 🔥 konsisten
+  final String userId;
   final Timestamp createdAt;
 
   EvacReport({

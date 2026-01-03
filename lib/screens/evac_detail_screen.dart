@@ -51,8 +51,25 @@ class _EvacDetailScreenState extends State<EvacDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Detail Evakuasi"),
-        backgroundColor: Colors.redAccent,
+        toolbarHeight: 72,
+        centerTitle: true,
+        title: const Text(
+          "Detail Evakuasi",
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        iconTheme: const IconThemeData(
+          color: Colors.white,
+        ),
+        backgroundColor: const Color(0xFFD73535),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(22),
+            bottomRight: Radius.circular(22),
+          ),
+        ),
       ),
       body: Column(
         children: [
@@ -87,7 +104,6 @@ class _EvacDetailScreenState extends State<EvacDetailScreen> {
               },
             ),
           ),
-
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -108,28 +124,33 @@ class _EvacDetailScreenState extends State<EvacDetailScreen> {
               ],
             ),
           ),
-
           const Spacer(),
-
           Padding(
             padding: const EdgeInsets.all(16),
-            child: ElevatedButton.icon(
-              icon: const Icon(Icons.qr_code),
-              label: const Text("Scan QR & Check-in"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.redAccent,
-                minimumSize: const Size(double.infinity, 50),
-              ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => QrScanScreen(
-                      selectedEvacLocation: widget.evacPoint.name,
-                    ),
+            child: Center(
+              child: SizedBox(
+                width: 210, 
+                height: 50,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.qr_code),
+                  label: const Text("Scan QR"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        const Color.fromARGB(255, 53, 210, 58),
+                    foregroundColor: Colors.white,
                   ),
-                );
-              },
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => QrScanScreen(
+                          selectedEvacLocation: widget.evacPoint.name,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
             ),
           ),
         ],

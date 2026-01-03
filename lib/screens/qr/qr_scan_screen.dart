@@ -38,7 +38,6 @@ class _QrScanScreenState extends State<QrScanScreen> {
 
           setState(() => _scanned = true);
 
-          // ✅ VALIDASI BENAR
           if (qrValue.trim() == widget.selectedEvacLocation.trim()) {
             Navigator.pushReplacement(
               context,
@@ -62,9 +61,24 @@ class _QrScanScreenState extends State<QrScanScreen> {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text("QR Tidak Sesuai"),
-        content: Text(
-          "QR ini untuk:\n\n$qrValue\n\n"
-          "Silakan scan QR sesuai lokasi yang kamu pilih.",
+        content: RichText(
+          text: TextSpan(
+            style: const TextStyle(
+              fontSize: 14,
+              color: Colors.black87,
+            ),
+            children: [
+              const TextSpan(text: "QR ini untuk "),
+              TextSpan(
+                text: qrValue,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const TextSpan(
+                text:
+                    ".\n \nSilakan scan QR sesuai lokasi yang kamu pilih.",
+              ),
+            ],
+          ),
         ),
         actions: [
           TextButton(

@@ -13,9 +13,9 @@ class RouteService {
 
     PolylineResult result =
         await polylinePoints.getRouteBetweenCoordinates(
-      _apiKey, // PARAMETER 1
-      PointLatLng(origin.latitude, origin.longitude), // PARAMETER 2
-      PointLatLng(destination.latitude, destination.longitude), // PARAMETER 3
+      _apiKey, 
+      PointLatLng(origin.latitude, origin.longitude), 
+      PointLatLng(destination.latitude, destination.longitude), 
       travelMode: TravelMode.walking,
     );
 
